@@ -79,7 +79,7 @@ func NewVadIterator(modelPath string, sampleRate int, threshold float32, windowS
 	vad.srData = make([]int64, 1)
 	vad.srData[0] = int64(vad.sampleRate)
 	var err error
-	vad.sr, err = onnxruntime_go.NewTensor[int64](vad.srNodeDims, vad.srData)
+	vad.sr, err = onnxruntime_go.NewTensor(vad.srNodeDims, vad.srData)
 	if err != nil {
 		return nil, fmt.Errorf("创建采样率张量失败: %w", err)
 	}
@@ -319,32 +319,35 @@ func (v *VadIterator) resetStates() {
 }
 
 // getSharedLibPath 根据操作系统和架构返回对应的 ONNX Runtime 动态库路径
-func getSharedLibPath() string {
+func getDefaultSharedLibPath() string {
 	if runtime.GOOS == "windows" {
 		if runtime.GOARCH == "amd64" {
-			return "/Users/wxz/work/code/github/bytectlgo/onnxruntime_go_examples/third_party/onnxruntime.dll"
+			return "../third_party/onnxruntime.dll"
 		}
 	}
 	if runtime.GOOS == "darwin" {
 		if runtime.GOARCH == "arm64" {
-			return "/Users/wxz/work/code/github/bytectlgo/onnxruntime_go_examples/third_party/onnxruntime_arm64.dylib"
+			return "../third_party/onnxruntime_arm64.dylib"
 		}
 		if runtime.GOARCH == "amd64" {
-			return "/Users/wxz/work/code/github/bytectlgo/onnxruntime_go_examples/third_party/onnxruntime_amd64.dylib"
+			return "../third_party/onnxruntime_amd64.dylib"
 		}
 	}
 	if runtime.GOOS == "linux" {
 		if runtime.GOARCH == "arm64" {
-			return "/Users/wxz/work/code/github/bytectlgo/onnxruntime_go_examples/third_party/onnxruntime_arm64.so"
+			return "../third_party/onnxruntime_arm64.so"
 		}
-		return "/Users/wxz/work/code/github/bytectlgo/onnxruntime_go_examples/third_party/onnxruntime.so"
+		return "../third_party/onnxruntime.so"
 	}
-	panic("无法找到支持此系统的 onnxruntime 库版本。")
+	fmt.Printf("Unable to determine a path to the onnxruntime shared library"+
+		" for OS \"%s\" and architecture \"%s\".\n", runtime.GOOS,
+		runtime.GOARCH)
+	return ""
 }
 
 func main() {
 	// 设置动态库路径
-	onnxruntime_go.SetSharedLibraryPath(getSharedLibPath())
+	onnxruntime_go.SetSharedLibraryPath(getDefaultSharedLibPath())
 
 	// 初始化 ONNX Runtime
 	if err := onnxruntime_go.InitializeEnvironment(); err != nil {
