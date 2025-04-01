@@ -5,7 +5,7 @@ import (
 	"log"
 	"runtime"
 
-	"github.com/yalue/onnxruntime_go"
+	onnx "github.com/yalue/onnxruntime_go"
 )
 
 // Timestamp 时间戳结构
@@ -16,10 +16,10 @@ type Timestamp struct {
 
 // VadIterator 语音活动检测迭代器
 type VadIterator struct {
-	session             *onnxruntime_go.AdvancedSession
-	input               *onnxruntime_go.Tensor[float32]
-	output              *onnxruntime_go.Tensor[float32]
-	stateN              *onnxruntime_go.Tensor[float32]
+	session             *onnx.AdvancedSession
+	input               *onnx.Tensor[float32]
+	output              *onnx.Tensor[float32]
+	stateN              *onnx.Tensor[float32]
 	inputData           []float32
 	stateData           []float32
 	srData              []int64
@@ -46,7 +46,7 @@ type VadIterator struct {
 	nextStart           int
 	speeches            []Timestamp
 	currentSpeech       Timestamp
-	sr                  *onnxruntime_go.Tensor[int64]
+	sr                  *onnx.Tensor[int64]
 }
 
 // NewVadIterator 创建新的语音活动检测迭代器
@@ -79,7 +79,7 @@ func NewVadIterator(modelPath string, sampleRate int, threshold float32, windowS
 	vad.srData = make([]int64, 1)
 	vad.srData[0] = int64(vad.sampleRate)
 	var err error
-	vad.sr, err = onnxruntime_go.NewTensor(vad.srNodeDims, vad.srData)
+	vad.sr, err = onnx.NewTensor(vad.srNodeDims, vad.srData)
 	if err != nil {
 		return nil, fmt.Errorf("创建采样率张量失败: %w", err)
 	}
@@ -99,7 +99,7 @@ func (v *VadIterator) initSession(modelPath string) error {
 	var err error
 	inputShape := []int64{1, int64(v.effectiveWindowSize)}
 	inputData := make([]float32, v.effectiveWindowSize)
-	v.input, err = onnxruntime_go.NewTensor[float32](inputShape, inputData)
+	v.input, err = onnx.NewTensor(inputShape, inputData)
 	if err != nil {
 		return fmt.Errorf("创建输入张量失败: %w", err)
 	}
@@ -107,7 +107,7 @@ func (v *VadIterator) initSession(modelPath string) error {
 	// 创建状态张量
 	stateShape := []int64{2, 1, 128}
 	stateData := make([]float32, 2*1*128)
-	v.stateN, err = onnxruntime_go.NewTensor[float32](stateShape, stateData)
+	v.stateN, err = onnx.NewTensor(stateShape, stateData)
 	if err != nil {
 		return fmt.Errorf("创建状态张量失败: %w", err)
 	}
@@ -115,7 +115,7 @@ func (v *VadIterator) initSession(modelPath string) error {
 	// 创建输出张量
 	outputShape := []int64{1, 1}
 	outputData := make([]float32, 1)
-	v.output, err = onnxruntime_go.NewTensor[float32](outputShape, outputData)
+	v.output, err = onnx.NewTensor(outputShape, outputData)
 	if err != nil {
 		return fmt.Errorf("创建输出张量失败: %w", err)
 	}
@@ -124,25 +124,25 @@ func (v *VadIterator) initSession(modelPath string) error {
 	srShape := []int64{1}
 	srData := make([]int64, 1)
 	srData[0] = int64(v.sampleRate)
-	v.sr, err = onnxruntime_go.NewTensor[int64](srShape, srData)
+	v.sr, err = onnx.NewTensor(srShape, srData)
 	if err != nil {
 		return fmt.Errorf("创建采样率张量失败: %w", err)
 	}
 
 	// 创建会话选项
-	options, err := onnxruntime_go.NewSessionOptions()
+	options, err := onnx.NewSessionOptions()
 	if err != nil {
 		return fmt.Errorf("创建会话选项失败: %w", err)
 	}
 	defer options.Destroy()
 
 	// 创建 ONNX Runtime 会话
-	v.session, err = onnxruntime_go.NewAdvancedSession(
+	v.session, err = onnx.NewAdvancedSession(
 		modelPath,
 		[]string{"input", "state", "sr"},
 		[]string{"output", "stateN"},
-		[]onnxruntime_go.ArbitraryTensor{v.input, v.stateN, v.sr},
-		[]onnxruntime_go.ArbitraryTensor{v.output, v.stateN},
+		[]onnx.ArbitraryTensor{v.input, v.stateN, v.sr},
+		[]onnx.ArbitraryTensor{v.output, v.stateN},
 		options,
 	)
 	if err != nil {
@@ -347,13 +347,13 @@ func getDefaultSharedLibPath() string {
 
 func main() {
 	// 设置动态库路径
-	onnxruntime_go.SetSharedLibraryPath(getDefaultSharedLibPath())
+	onnx.SetSharedLibraryPath(getDefaultSharedLibPath())
 
 	// 初始化 ONNX Runtime
-	if err := onnxruntime_go.InitializeEnvironment(); err != nil {
+	if err := onnx.InitializeEnvironment(); err != nil {
 		log.Fatalf("初始化 ONNX Runtime 失败: %v", err)
 	}
-	defer onnxruntime_go.DestroyEnvironment()
+	defer onnx.DestroyEnvironment()
 
 	// 读取 WAV 文件
 	wavReader := &WavReader{}
