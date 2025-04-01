@@ -1,14 +1,17 @@
 // This example illustrates how to access the contents of Maps and sequences,
 // using the random-forest sklearn network originally copied and modified from
 // here: http://onnx.ai/sklearn-onnx/.
+
+// 这个例子展示了如何访问 Maps 和序列的内容，使用的是从这里复制的随机森林 sklearn 网络：http://onnx.ai/sklearn-onnx/。
 package main
 
 import (
 	"flag"
 	"fmt"
-	ort "github.com/yalue/onnxruntime_go"
 	"os"
 	"runtime"
+
+	ort "github.com/yalue/onnxruntime_go"
 )
 
 // For more comments, see the sum_and_difference example.

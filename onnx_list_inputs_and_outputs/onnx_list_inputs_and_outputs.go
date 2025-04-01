@@ -5,12 +5,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	ort "github.com/yalue/onnxruntime_go"
 	"os"
 	"runtime"
+
+	ort "github.com/yalue/onnxruntime_go"
 )
 
-// For more comments, see the sum_and_difference example.
+// 有关更多评论，请参见 sum_and_difference 示例。
+
 func getDefaultSharedLibPath() string {
 	if runtime.GOOS == "windows" {
 		if runtime.GOARCH == "amd64" {
@@ -37,7 +39,7 @@ func getDefaultSharedLibPath() string {
 	return ""
 }
 
-// Prints the inputs and outputs of an onnx-format network to stdout.
+// 打印 onnx 格式网络的输入和输出到 stdout。
 func showNetworkInputsAndOutputs(libPath, networkPath string) error {
 	ort.SetSharedLibraryPath(libPath)
 	e := ort.InitializeEnvironment()

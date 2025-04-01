@@ -1,17 +1,17 @@
 Getting ONNX Input and Output Information
 =========================================
 
-This example project defines a command-line utility that prints the input and
-output information about a user-specified .onnx file to standard output.
+这个示例项目定义了一个命令行实用程序，用于打印用户指定 .onnx 文件的输入和输出信息到标准输出。
 
-Example usage:
+
+示例用法：
 ```
 go build .
 
 ./onnx_list_inputs_and_outputs -onnx_file ../image_object_detect/yolov8n.onnx
 ```
 
-The above command should output something like the following:
+上述命令应该输出类似以下的内容：
 
 ```
 1 inputs to ../image_object_detect/yolov8n.onnx:
@@ -20,6 +20,6 @@ The above command should output something like the following:
   Index 0: "output0": [1 84 8400], ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT
 ```
 
-(The yolov8 network only has one input and one output: a 1x3x640x640 input,
-named "images", and a 1x84x8400 output, named "output0".)
+(yolov8 网络只有一个输入和一个输出：一个 1x3x640x640 input,
+名为 "images", 和一个 1x84x8400 output, 名为 "output0".)
 
