@@ -357,7 +357,7 @@ func main() {
 
 	// 读取 WAV 文件
 	wavReader := &WavReader{}
-	if err := wavReader.Open("./audio/files_ru.wav"); err != nil {
+	if err := wavReader.Open("./audio/files_de.wav"); err != nil {
 		log.Fatalf("打开音频文件失败: %v", err)
 	}
 
